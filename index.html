@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untuk Kamu yang Spesial!</title>
+    <!-- Google Fonts untuk font yang menarik -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Handlee&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Umum */
+        body {
+            margin: 0;
+            font-family: 'Handlee', cursive; /* Font default */
+            overflow: hidden; /* Mencegah scrollbar saat animasi */
+            background: linear-gradient(to top, #ffddee, #e0e0ff); /* Latar belakang lembut */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative; /* Diperlukan untuk floating-heart */
+        }
+
+        /* --- Overlay Pembuka --- */
+        .opening-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75); /* Overlay semi-transparan gelap */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1.5s ease-out, visibility 1.5s ease-out;
+            cursor: pointer; /* Menandakan bisa diklik */
+        }
+
+        .opening-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none; /* Nonaktifkan interaksi setelah tersembunyi */
+        }
+
+        .opening-card {
+            background-color: rgba(255, 255, 255, 0.95); /* Sedikit transparan putih */
+            padding: 40px 60px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            transform: scale(0.7); /* Ukuran awal lebih kecil */
+            opacity: 0; /* Awalnya tidak terlihat */
+            animation: fadeInScale 1.2s forwards ease-out; /* Animasi muncul */
+            animation-delay: 0.5s; /* Tunda sedikit */
+            border: 3px solid #f06292; /* Border pink */
+            position: relative; /* Untuk efek glow */
+        }
+
+        /* Efek glow pada kartu pembuka */
+        .opening-card::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, #ff8a80, #ea80fc, #8c9eff, #84ffff);
+            background-size: 400% 400%;
+            border-radius: 25px;
+            z-index: -1;
+            filter: blur(10px);
+            animation: glow 10s ease infinite;
+        }
+
+        @keyframes glow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes fadeInScale {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .opening-card h2 {
+            font-family: 'Dancing Script', cursive; /* Font yang lebih artistik */
+            color: #e91e63; /* Pink */
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .opening-card p {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            color: #555;
+            font-family: 'Pacifico', cursive;
+        }
+
+        #openButton {
+            background-color: #ff4081; /* Pink Cerah */
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.4em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        #openButton:hover {
+            background-color: #e73070;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        #openButton:active {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Latar Belakang Partikel (dari particles.js) --- */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1; /* Pastikan di belakang konten */
+        }
+
+        /* --- Konten Utama --- */
+        .main-content {
+            background-color: rgba(255, 255, 255, 0.95); /* Sedikit transparan putih */
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 90%;
+            max-width: 900px; /* Lebar maksimal konten */
+            text-align: center;
+            transform: translateY(80px); /* Awalnya sedikit di bawah */
+            opacity: 0; /* Awalnya tersembunyi */
+            transition: transform 1.2s ease-out, opacity 1.2s ease-out;
+            display: none; /* Sembunyikan sepenuhnya sampai diaktifkan JS */
+            z-index: 10;
+            margin: 20px auto; /* Centering dan jarak */
+            overflow-y: auto; /* Jika konten panjang, bisa di-scroll */
+            max-height: 95vh; /* Batasi tinggi konten agar tidak keluar layar */
+            position: relative; /* Untuk efek klik */
+        }
+
+        .main-content.visible {
+            transform: translateY(0);
+            opacity: 1;
+            display: block; /* Tampilkan setelah diaktifkan */
+        }
+
+        .header-text h1 {
+            font-family: 'Dancing Script', cursive;
+            color: #d81b60; /* Merah muda gelap */
+            font-size: 4em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .content-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 40px; /* Jarak antar card */
+            margin-top: 30px;
+        }
+
+        .card {
+            background-color: #fffaf0; /* Warna card yang lembut (krem) */
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            transform: translateX(-100px); /* Animasi muncul dari samping */
+            opacity: 0;
+            transition: transform 1s ease-out, opacity 1s ease-out;
+            border: 2px dashed #f06292; /* Border putus-putus */
+        }
+
+        /* Animasi muncul untuk setiap card dengan delay */
+        .main-content.visible .card {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .main-content.visible .card:nth-child(1) { transition-delay: 0.3s; }
+        .main-content.visible .card:nth-child(2) { transition-delay: 0.6s; }
+        .main-content.visible .card:nth-child(3) { transition-delay: 0.9s; }
+        .main-content.visible .card:nth-child(4) { transition-delay: 1.2s; }
+        .main-content.visible .card:nth-child(5) { transition-delay: 1.5s; }
+        /* Tambahkan lebih banyak sesuai jumlah card Anda */
+
+        .card h2 {
+            font-family: 'Pacifico', cursive;
+            color: #ff6f61; /* Warna oranye/merah */
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+
+        .card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            object-fit: cover; /* Pastikan gambar mengisi ruang tanpa distorsi */
+        }
+
+        .card p {
+            font-size: 1.2em;
+            line-height: 1.7;
+            color: #444;
+        }
+
+        .footer-text {
+            margin-top: 50px;
+            font-style: italic;
+            color: #777;
+            font-size: 1.2em;
+            font-family: 'Handlee', cursive;
+        }
+
+        /* --- Efek Hati Melayang Saat Klik --- */
+        .floating-heart {
+            position: absolute;
+            font-size: 2.5em; /* Ukuran hati */
+            color: #ff6f61; /* Warna hati */
+            opacity: 0;
+            pointer-events: none; /* Agar tidak menghalangi klik lain */
+            /*user-select: none; /* Mencegah seleksi teks */
+            animation: floatUpAndFade 2s forwards ease-out; /* Animasi melayang dan memudar */
+            transform: translate(-50%, -50%); /* Pusatkan hati pada titik klik */
+            text-shadow: 0 0 5px rgba(255, 111, 97, 0.5); /* Efek bayangan hati */
+        }
+
+        @keyframes floatUpAndFade {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            20% { transform: translate(-50%, -100%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -300%) scale(1.2); opacity: 0; }
+        }
+
+        /* --- Responsif --- */
+        @media (max-width: 768px) {
+            .opening-card {
+                padding: 30px 40px;
+                width: 85%;
+            }
+            .opening-card h2 {
+                font-size: 2.5em;
+            }
+            .opening-card p {
+                font-size: 1.1em;
+            }
+            #openButton {
+                padding: 15px 30px;
+                font-size: 1.2em;
+            }
+            .main-content {
+                padding: 25px;
+                width: 95%;
+            }
+            .header-text h1 {
+                font-size: 2.8em;
+            }
+            .card h2 {
+                font-size: 1.8em;
+            }
+            .card p {
+                font-size: 1em;
+            }
+            .footer-text {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .opening-card {
+                padding: 20px 25px;
+                width: 90%;
+            }
+            .opening-card h2 {
+                font-size: 2em;
+            }
+            .opening-card p {
+                font-size: 0.9em;
+            }
+            #openButton {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+            .main-content {
+                padding: 15px;
+            }
+            .header-text h1 {
+                font-size: 2.2em;
+            }
+            .card h2 {
+                font-size: 1.5em;
+            }
+            .card p {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Musik Latar Belakang -->
+    <!-- Ganti 'your_background_music.mp3' dengan URL atau path ke file musik Anda -->
+    <audio id="backgroundMusic" loop>
+        <source src="audio/Andmesh_-_Anugerah_Terindah_CeeNaija.com_.mp3" type="audio/mpeg">
+        Browser Anda tidak mendukung elemen audio.
+    </audio>
+
+    <!-- Overlay Pembuka -->
+    <div class="opening-overlay" id="openingOverlay">
+        <div class="opening-card">
+            <h2>Ada Pesan Spesial!</h2>
+            <p>Sentuh/Klik untuk Membuka</p>
+            <button id="openButton">Buka Sekarang</button>
+        </div>
+    </div>
+
+    <!-- Latar Belakang dengan Partikel -->
+    <div class="background-particles" id="particles-js"></div>
+
+    <!-- Konten Utama (Tersembunyi Awalnya) -->
+    <div class="main-content" id="mainContent">
+        <div class="header-text">
+            <h1>Selamat Ulang Tahun, Zalfa Isnaini Zuhry! 🎉</h1>
+        </div>
+
+        <div class="content-sections">
+            <div class="card">
+                <h2>Mengingat Kembali</h2>
+                <!-- Ganti URL gambar dengan foto Anda -->
+                <img src="birthday_website/images/foto1.jpg" alt="Foto Kenangan 1">
+                <p>Di hari spesialmu ini, aku ingin berbagi beberapa kenangan indah yang kita miliki bersama. Setiap momen bersamamu adalah harta yang tak ternilai.</p>
+            </div>
+
+            <div class="card">
+                <h2>Tawa & Bahagia</h2>
+                <!-- Ganti URL gambar dengan foto Anda -->
+                <img src="birthday_website/images/foto3.jpg" alt="Foto Kenangan 2">
+                <img src="birthday_website/images/foto4.jpg" alt="Foto Kenangan 3">
+                <img src="birthday_website/images/foto2.jpg" alt="Foto Kenangan 4">
+                <img src="birthday_website/images/foto5.jpg" alt="Foto Kenangan 5">
+                <img src="birthday_website/images/foto8.jpg" alt="Foto Kenangan 6">
+                <img src="birthday_website/images/foto7.jpg" alt="Foto Kenangan 7">
+                <img src="birthday_website/images/foto6.jpg" alt="Foto Kenangan 8">
+                <img src="birthday_website/images/foto9.jpg" alt="Foto Kenangan 9">
+                <p>Dari tawa lepas hingga dukungan tak terbatas, kamu selalu ada. Terima kasih atas semua kebahagiaan yang telah kamu bawa dalam hidupku.</p>
+            </div>
+
+            <div class="card">
+                <h2>Harapan Terbaik</h2>
+                <p>Semoga di usiamu yang baru ini, setiap langkahmu dipenuhi berkah, kebahagiaan, dan semua impianmu tercapai. Kamu pantas mendapatkan yang terbaik!</p>
+            </div>
+
+            <!-- Anda bisa menambahkan lebih banyak card di sini -->
+            <div class="card">
+                <h2>Selalu Bersamamu</h2>
+                <p>Aku berharap kita bisa terus menciptakan lebih banyak kenangan indah di masa depan. Selalu ada untukmu, apapun yang terjadi.</p>
+            </div>
+
+            <div class="card">
+                <h2>Permintaan Maaf</h2>
+                <p>Maaf tidak bisa romatis untuk mu, maaf tidak dapat membahagiakan penuh, maaf banyak ngeselin, tapi aku pada mu selalu Love You ❤️</p>
+            </div>
+        </div>
+
+        <div class="footer-text">
+            <p>Dengan cinta dari, Sudarma Yudho Prayitno ❤️</p>
+        </div>
+    </div>
+
+    <!-- Script JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const openingOverlay = document.getElementById('openingOverlay');
+            const openButton = document.getElementById('openButton');
+            const backgroundMusic = document.getElementById('backgroundMusic');
+            const mainContent = document.getElementById('mainContent');
+
+            // Fungsi untuk memutar musik
+            function playMusic() {
+                backgroundMusic.play().catch(error => {
+                    console.log("Autoplay diblokir, interaksi pengguna diperlukan:", error);
+                    // Anda bisa menambahkan UI untuk memberitahu pengguna mengklik untuk memutar musik jika diblokir
+                });
+            }
+
+            // Event listener untuk tombol 'Buka Sekarang'
+            openButton.addEventListener('click', () => {
+                // 1. Sembunyikan overlay pembuka dengan animasi fade out
+                openingOverlay.classList.add('hidden');
+
+                // 2. Putar musik
+                playMusic();
+
+                // 3. Tampilkan konten utama setelah animasi overlay selesai
+                // Durasi timeout harus sesuai dengan durasi transisi CSS opening-overlay
+                setTimeout(() => {
+                    mainContent.classList.add('visible');
+                    // Pastikan z-index partikel disesuaikan jika diperlukan
+                    document.getElementById('particles-js').style.zIndex = '-1'; 
+                }, 1500); // Sesuaikan dengan `transition` opacity di CSS
+            });
+
+            // Event listener untuk efek hati muncul saat klik/tap
+            document.addEventListener('click', (e) => {
+                // Jangan tampilkan hati jika masih di overlay pembuka
+                if (openingOverlay.classList.contains('hidden')) {
+                    const heart = document.createElement('div');
+                    heart.classList.add('floating-heart');
+                    // Gunakan ikon hati atau emoji Unicode
+                    heart.innerHTML = '💖'; 
+                    heart.style.left = `${e.clientX}px`;
+                    heart.style.top = `${e.clientY}px`;
+                    document.body.appendChild(heart);
+
+                    // Hapus elemen hati setelah animasinya selesai
+                    heart.addEventListener('animationend', () => {
+                        heart.remove();
+                    });
+                }
+            });
+        });
+    </script>
+    
+    <!-- Library particles.js dari CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script>
+        // Inisialisasi particles.js
+        particlesJS('particles-js', {
+            "particles": {
+                "number": {
+                    "value": 60, /* Jumlah partikel */
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#ffe0e0" /* Warna partikel (merah muda lembut) */
+                },
+                "shape": {
+                    "type": "circle", /* Bentuk partikel (bisa 'star', 'triangle', 'image', dll.) */
+                    "stroke": {
+                        "width": 0,
+                        "color": "#000000"
+                    },
+                    "polygon": {
+                        "nb_sides": 5
+                    }
+                    /* Jika ingin bentuk hati, gunakan type: "image" dan sertakan path ke gambar hati kecil
+                    "image": {
+                        "src": "path/to/your/heart.png", 
+                        "width": 100,
+                        "height": 100
+                    }
+                    */
+                },
+                "opacity": {
+                    "value": 0.7,
+                    "random": true,
+                    "anim": {
+                        "enable": false,
+                        "speed": 1,
+                        "opacity_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "size": {
+                    "value": 4, /* Ukuran partikel */
+                    "random": true,
+                    "anim": {
+                        "enable": false,
+                        "speed": 40,
+                        "size_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "line_linked": {
+                    "enable": false /* Tidak ada garis penghubung antar partikel */
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 2, /* Kecepatan partikel jatuh */
+                    "direction": "bottom", /* Arah jatuh */
+                    "random": true,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false,
+                    "attract": {
+                        "enable": false,
+                        "rotateX": 600,
+                        "rotateY": 1200
+                    }
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": false /* Efek hover pada partikel */
+                    },
+                    "onclick": {
+                        "enable": false /* Efek klik pada partikel */
+                    },
+                    "resize": true
+                }
+            },
+            "retina_detect": true
+        });
+    </script>
+</body>
+</html>
